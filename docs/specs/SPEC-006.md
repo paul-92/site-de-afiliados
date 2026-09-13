@@ -1,6 +1,6 @@
 # SPEC-006 — Administration Cockpit
 
-Status: G1/G2 APPROVED; IMPLEMENTATION AUTHORIZED; IN PROGRESS.
+Status: G1/G2 APPROVED; IMPLEMENTED; AWAITING HUMAN G3/G4.
 
 Decision record: HUMAN approved G2 and authorized PLAN-006. Baseline: SPEC-003/004/005 ACCEPTED/DONE; SPEC-005 published at `f2cb97feffac52feb152767d7fc8ed35322965c3`.
 
