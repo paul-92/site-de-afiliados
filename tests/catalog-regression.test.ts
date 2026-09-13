@@ -4,9 +4,9 @@ import { priceObservations, productTags, tags } from "@/db/schema";
 
 describe("SPEC-004 regressions", () => {
   it("exports the complete catalog schema", () => expect([tags, productTags, priceObservations]).toHaveLength(3));
-  it("keeps SPEC-005 redirect behavior out of scope", () => {
+  it("retains the catalog while SPEC-005 activates its isolated route", () => {
     const route = readFileSync("src/app/go/[productSlug]/route.ts", "utf8");
-    expect(route).toContain("status: 501");
-    expect(route).not.toContain("NextResponse.redirect");
+    expect(route).toContain("resolveAffiliateRedirect");
+    expect(route).toContain("NextResponse.redirect");
   });
 });

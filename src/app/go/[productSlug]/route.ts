@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
-import { trackingContract } from "@/tracking/contract";
+import { withTrackingRepository } from "@/tracking/drizzle-repository";
+import { resolveAffiliateRedirect } from "@/tracking/service";
 
-export async function GET(_request: Request, { params }: { params: Promise<{ productSlug: string }> }) {
+export const dynamic = "force-dynamic";
+export async function GET(request: Request, { params }: { params: Promise<{ productSlug: string }> }) {
   const { productSlug } = await params;
-  return NextResponse.json({ ...trackingContract(productSlug), status: "NOT_IMPLEMENTED_IN_SPEC_003" }, { status: 501 });
+  const result = await withTrackingRepository((repository) => resolveAffiliateRedirect(repository, request, productSlug));
+  if (!result) return NextResponse.json({ error: "AFFILIATE_REDIRECT_DENIED" }, { status: 404, headers: { "Cache-Control": "no-store" } });
+  return NextResponse.redirect(result.destination, { status: result.status, headers: { "Cache-Control": "no-store" } });
 }

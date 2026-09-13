@@ -1,6 +1,6 @@
 # PLAN-004 — Product Catalog
 
-Status: G2 APPROVED; EXECUTED; AWAITING G3/G4.
+Status: COMPLETED.
 
 1. Audit the SPEC-003 schema and stop on destructive or materially conflicting evolution.
 2. Extend the schema additively with `PriceObservation` and generate a versioned Drizzle migration.

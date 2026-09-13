@@ -1,6 +1,6 @@
 # SPEC-004 — Product Catalog
 
-Status: G1/G2 APPROVED; IMPLEMENTED; AWAITING G3/G4.
+Status: ACCEPTED/DONE.
 
 ## Contract
 
