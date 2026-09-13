@@ -1,4 +1,3 @@
-import { getAdminBoundaryState } from "@/lib/admin-auth";
-
-export const dynamic = "force-dynamic";
-export default async function AdminPage() { const state = await getAdminBoundaryState(); return <section className="card"><h1>Admin</h1><p>{state.authenticated ? "Boundary administrativo autorizado." : "Boundary administrativo protegido; autenticação ainda não fornecida."}</p></section>; }
+import Link from "next/link";
+import { withAdminRepository } from "@/admin/repository";
+export default async function AdminPage() { const health = await withAdminRepository((repo) => repo.dashboard()); return <><section><h2>Saúde operacional</h2><div className="metrics"><article className="metric"><strong>{health.products}</strong><span>produtos</span></article><article className="metric"><strong>{health.activeProducts}</strong><span>publicados</span></article><article className="metric"><strong>{health.activeCategories}</strong><span>categorias ativas</span></article><article className="metric"><strong>{health.activeMarketplaces}</strong><span>marketplaces ativos</span></article></div></section><section className="card"><h2>Atalhos</h2><div className="actions"><Link className="button" href="/admin/products/new">Cadastrar produto</Link><Link className="button secondary" href="/admin/products?status=DRAFT">Revisar rascunhos</Link></div></section></>; }

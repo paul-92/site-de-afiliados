@@ -4,7 +4,11 @@ import { affiliateLinks, categories, marketplaces, priceObservations, products, 
 const { db, close } = createDatabase();
 const [marketplace] = await db.insert(marketplaces).values({ slug: "mercado-exemplo", name: "Mercado Exemplo" }).returning();
 const [category] = await db.insert(categories).values({ slug: "organizacao", name: "Organização", description: "Categoria fictícia para desenvolvimento." }).returning();
-await db.insert(categories).values([{ slug: "cozinha", name: "Cozinha" }, { slug: "utilidades", name: "Utilidades" }]);
+await db.insert(categories).values([
+  { slug: "cozinha", name: "Cozinha", sortOrder: 1 },
+  { slug: "casa-utilidades", name: "Casa & Utilidades", sortOrder: 2 },
+  { slug: "ferramentas-manutencao", name: "Ferramentas & Manutenção", sortOrder: 3 },
+]);
 const [tag] = await db.insert(tags).values({ slug: "compacto", name: "Compacto" }).returning();
 const [product] = await db.insert(products).values({
   slug: "organizador-modular-exemplo", title: "Organizador Modular (exemplo)",
