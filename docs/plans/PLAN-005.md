@@ -1,6 +1,6 @@
 # PLAN-005 — Affiliate Tracking & Click Attribution
 
-Status: G2 APPROVED; AUTHORIZED; EXECUTED; AWAITING HUMAN G3/G4.
+Status: COMPLETED; ACCEPTED/DONE.
 
 1. Audit the real ClickEvent schema and stop for destructive or material schema/ADR changes.
 2. Implement the repository boundary for eligible server-side destination resolution and append-only ClickEvent writes.

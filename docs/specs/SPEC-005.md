@@ -1,6 +1,6 @@
 # SPEC-005 — Affiliate Tracking
 
-Status: G1/G2 APPROVED; IMPLEMENTED; AWAITING HUMAN G3/G4.
+Status: ACCEPTED/DONE.
 
 Decision record: HUMAN approved G2 and authorized PLAN-005. Baseline: SPEC-003 ACCEPTED/DONE; SPEC-004 ACCEPTED/DONE; PLAN-004 COMPLETED.
 
