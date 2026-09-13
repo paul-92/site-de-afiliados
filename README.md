@@ -1,6 +1,6 @@
 # Affiliate Hub / Garimora (candidate)
 
-Engineering foundation for a modular affiliate-curation web app. The candidate name is not frozen and must not be used for production, domain purchases, or public campaigns yet.
+Modular affiliate-curation web app with an approved engineering foundation and a catalog implementation awaiting G3/G4 acceptance. The candidate name is not frozen and must not be used for production, domain purchases, or public campaigns yet.
 
 ## Local quality gate
 
@@ -12,9 +12,9 @@ Database generation is deterministic and does not require a live database. `npm 
 
 ## Boundaries
 
-- `/`, `/categoria/[slug]`, and `/produto/[slug]` are public architecture skeletons.
+- `/`, `/categoria/[slug]`, and `/produto/[slug]` consume the public catalog boundary. They expose only publishable `ACTIVE` products and support search/category/tag filters.
 - `/admin` demonstrates a deny-by-default, server-side authorization boundary. Full Supabase Auth integration belongs to the administration/security work.
 - `/go/[productSlug]` returns `501` and never redirects. Commercial redirect behavior belongs to SPEC-005.
-- The schema is foundational only. Product catalog behavior belongs to SPEC-004.
+- Catalog lifecycle and Publication Gate are implemented in SPEC-004. The full Admin experience remains out of scope.
 
-See [project context](.context/PROJECT_CONTEXT.md), [execution state](.context/EXECUTION_STATE.md), and [PLAN-003](docs/plans/PLAN-003.md).
+See [SPEC-004](docs/specs/SPEC-004.md), [PLAN-004](docs/plans/PLAN-004.md), and the recorded evidence under `docs/evidence/`.

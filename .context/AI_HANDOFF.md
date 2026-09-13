@@ -1,5 +1,5 @@
 # AI handoff
 
-Work only inside the active approved plan. Do not infer authorization from downstream approvals. As of this handoff, PLAN-003 is the sole implementation window.
+PLAN-004 has been implemented and is stopped at HUMAN G3/G4. Do not infer authorization to merge, deploy, push the SPEC-004 branch or begin downstream implementation.
 
-Prohibited in this window: production deployment, domain purchase, main merge, push without explicit authorization, scraping, real affiliate links, real secrets, and material ADR changes. Stop for a destructive migration, mandatory external credentials, a critical unmitigated dependency risk, or a required contract change.
+Still prohibited: production deployment or migration, domain purchase, main merge, push without explicit authorization, scraping, real affiliate links, real secrets, full Admin UI, SPEC-005 tracking and material ADR changes. The SPEC-004 migration is additive and has not been applied to any database.
