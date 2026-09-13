@@ -1,4 +1,4 @@
-import type { ReferrerClass, SourcePage } from "./contract";
+import { SOURCE_PAGES, type ReferrerClass, type SourcePage } from "./contract";
 
 export function normalizeProductSlug(value: string) {
   const slug = value.trim().toLowerCase();
@@ -23,6 +23,10 @@ export function classifyTraffic(requestUrl: string, referrer: string | null): { 
     const request = new URL(requestUrl);
     const source = new URL(referrer);
     if (request.origin !== source.origin) return { sourcePage: "EXTERNAL", referrerClass: "EXTERNAL" };
+    const declared = request.searchParams.get("source");
+    if (declared && SOURCE_PAGES.includes(declared as SourcePage) && !["EXTERNAL", "DIRECT"].includes(declared)) {
+      return { sourcePage: declared as SourcePage, referrerClass: "INTERNAL" };
+    }
     const path = source.pathname;
     const sourcePage: SourcePage = path === "/" ? "HOME" : path.startsWith("/produto/") ? "PRODUCT" : path.startsWith("/categoria/") ? "CATEGORY" : source.searchParams.has("q") ? "SEARCH" : "OTHER_INTERNAL";
     return { sourcePage, referrerClass: "INTERNAL" };

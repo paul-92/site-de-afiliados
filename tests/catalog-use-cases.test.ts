@@ -13,6 +13,8 @@ class MemoryCatalogRepository implements CatalogRepository {
   };
   async listPublic(query: CatalogListQuery): Promise<readonly PublicProduct[]> { this.lastQuery = query; return []; }
   async findPublicBySlug(): Promise<PublicProduct | null> { return null; }
+  async listPublicCategories() { return []; }
+  async findPublicCategory() { return null; }
   async getPublicationCandidate() { return { ...this.candidate, status: this.status }; }
   async updateStatus(_id: string, expected: ProductStatus, next: ProductStatus) { if (expected !== this.status) return false; this.status = next; return true; }
 }
@@ -21,7 +23,7 @@ describe("Catalog use cases integrated with repository boundary", () => {
   it("normalizes and bounds public catalog filters", async () => {
     const repository = new MemoryCatalogRepository();
     await searchPublicCatalog(repository, { search: "  caixa  ", categorySlug: " Organização ", tagSlugs: ["compacto", "compacto", ""], limit: 999, offset: -2 });
-    expect(repository.lastQuery).toEqual({ search: "caixa", categorySlug: "organização", tagSlugs: ["compacto"], featured: undefined, limit: 100, offset: 0 });
+    expect(repository.lastQuery).toEqual({ search: "caixa", categorySlug: "organização", tagSlugs: ["compacto"], featured: undefined, maxPrice: undefined, order: "DEFAULT", limit: 100, offset: 0 });
   });
   it("moves a publishable product through DRAFT to READY", async () => {
     const repository = new MemoryCatalogRepository();

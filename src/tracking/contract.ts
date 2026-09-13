@@ -1,6 +1,6 @@
 export const TRACKING_ROUTE = "/go/[productSlug]" as const;
 export const AFFILIATE_REDIRECT_STATUS = 307 as const;
-export const SOURCE_PAGES = ["HOME", "PRODUCT", "CATEGORY", "SEARCH", "OTHER_INTERNAL", "EXTERNAL", "DIRECT"] as const;
+export const SOURCE_PAGES = ["HOME", "PRODUCT", "CATEGORY", "SEARCH", "FEATURED", "PRICE_BUCKET", "NEWEST", "OTHER_INTERNAL", "EXTERNAL", "DIRECT"] as const;
 export const REFERRER_CLASSES = ["DIRECT", "INTERNAL", "EXTERNAL"] as const;
 
 export type SourcePage = (typeof SOURCE_PAGES)[number];
