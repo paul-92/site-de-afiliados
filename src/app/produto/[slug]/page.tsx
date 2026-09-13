@@ -1,0 +1,1 @@
+export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) { const { slug } = await params; return <section className="card"><h1>Produto</h1><p>Skeleton para <code>{slug}</code>.</p></section>; }

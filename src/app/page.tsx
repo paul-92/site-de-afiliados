@@ -1,0 +1,1 @@
+export default function HomePage() { return <section className="card"><p>Engineering Foundation</p><h1>Garimora</h1><p>Skeleton público executável. Catálogo comercial será implementado somente após o gate da SPEC-003.</p></section>; }
