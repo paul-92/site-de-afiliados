@@ -1,5 +1,16 @@
 # SPEC-010 execution evidence
 
+## Acceptance gate
+
+- Accepted functional baseline: `aa927b2c05559df63dc1904580abfe3e9f356495`.
+- G3: PASS.
+- G4: HUMAN APPROVED.
+- SPEC-010: ACCEPTED/DONE.
+- PLAN-010: COMPLETED.
+- 80/80 tests PASS; production build PASS; security/privacy checks PASS; runtime vulnerabilities = 0.
+- Schema and migrations remain unchanged.
+- Four moderate development-only advisories in the known `drizzle-kit` toolchain remain an accepted risk.
+
 ## Authorization and Supabase boundary
 
 The `/admin/*` layout verifies Supabase Auth server-side and applies the administrator allowlist. Every exported administrative mutation calls the same fail-closed boundary before repository work, including products, taxonomy, marketplaces, affiliate links, prices, lifecycle and logout. Analytics inherits the protected layout. Only the public anon key is used with Supabase Auth; server-only secrets are absent from client/application sources. Missing Auth configuration denies access.
@@ -42,4 +53,18 @@ Catalog and Analytics DEMO remain development-only. Schema and migrations are un
 | Logging/error review | PASS — controlled tracking fields only; no token, cookie, Authorization, PII, secret, SQL or stack output introduced |
 | `git diff --check` | PASS |
 
-Deployment prerequisites for SPEC-012 are: configure real business/privacy contact information, verify production environment variables and HTTPS, activate HSTS after HTTPS confirmation, and **ACTIVATE PAGEVIEW 90-DAY RETENTION SCHEDULER**.
+## Handoff findings and prerequisites
+
+SPEC-012 must:
+
+- configure business identity and a privacy contact channel;
+- configure and validate real environment variables;
+- revalidate CSP with real origins;
+- confirm HTTPS end-to-end;
+- activate HSTS only after HTTPS confirmation;
+- **ACTIVATE PAGEVIEW 90-DAY RETENTION SCHEDULER**;
+- apply approved migrations to remote Supabase only during the SPEC-012 authorized window.
+
+Non-blocking SPEC-011 QA/E2E Final finding: Next.js warning `missing-data-scroll-behavior`. Observed symptom: `scroll-behavior: smooth` on the `html` element without `data-scroll-behavior="smooth"`. Treat and validate during SPEC-011; no functional code was changed for it in this finalization.
+
+No PR, merge, deploy, `main` change, remote Supabase/Vercel access, remote migration application, scheduler activation, SPEC-011 implementation, warning correction, or BACKLOG execution occurred during finalization.
