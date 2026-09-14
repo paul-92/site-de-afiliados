@@ -1,6 +1,8 @@
 import { and, asc, count, desc, eq, ilike, or } from "drizzle-orm";
 import type { createDatabase } from "@/db/client";
 import { affiliateLinks, categories, marketplaces, priceObservations, products, productTags, tags } from "@/db/schema";
+import { withDatabaseDeadline } from "@/db/client";
+import { withRuntimeTiming } from "@/lib/runtime-timing";
 
 type Database = ReturnType<typeof createDatabase>["db"];
 export type ProductInput = typeof products.$inferInsert;
@@ -10,10 +12,10 @@ export class AdminRepository {
 
   async dashboard() {
     const [[productCount], [activeCount], [categoryCount], [marketplaceCount]] = await Promise.all([
-      this.db.select({ value: count() }).from(products),
-      this.db.select({ value: count() }).from(products).where(eq(products.status, "ACTIVE")),
-      this.db.select({ value: count() }).from(categories).where(eq(categories.active, true)),
-      this.db.select({ value: count() }).from(marketplaces).where(eq(marketplaces.active, true)),
+      withRuntimeTiming("QUERY", "admin-dashboard-products", () => withDatabaseDeadline(this.db.select({ value: count() }).from(products))),
+      withRuntimeTiming("QUERY", "admin-dashboard-active-products", () => withDatabaseDeadline(this.db.select({ value: count() }).from(products).where(eq(products.status, "ACTIVE")))),
+      withRuntimeTiming("QUERY", "admin-dashboard-active-categories", () => withDatabaseDeadline(this.db.select({ value: count() }).from(categories).where(eq(categories.active, true)))),
+      withRuntimeTiming("QUERY", "admin-dashboard-active-marketplaces", () => withDatabaseDeadline(this.db.select({ value: count() }).from(marketplaces).where(eq(marketplaces.active, true)))),
     ]);
     return { products: productCount.value, activeProducts: activeCount.value, activeCategories: categoryCount.value, activeMarketplaces: marketplaceCount.value };
   }

@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
+import { withRuntimeTiming } from "@/lib/runtime-timing";
 
 export type AdminBoundaryState = { authenticated: boolean; userId: string | null };
 
@@ -14,7 +15,7 @@ export async function getAdminBoundaryState(): Promise<AdminBoundaryState> {
   if (!url || !key) return authorizeAdmin(null);
   const store = await cookies();
   const supabase = createServerClient(url, key, { cookies: { getAll: () => store.getAll(), setAll: () => undefined } });
-  const { data, error } = await supabase.auth.getUser();
+  const { data, error } = await withRuntimeTiming("AUTH", "supabase-get-user", () => supabase.auth.getUser());
   return authorizeAdmin(error ? null : (data.user?.id ?? null));
 }
 
