@@ -19,3 +19,17 @@ export const priceObservations = pgTable("price_observations", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 }, (t) => [index("price_observations_product_time_idx").on(t.productId, t.observedAt)]);
 export const clickEvents = pgTable("click_events", { id: uuid("id").defaultRandom().primaryKey(), productId: uuid("product_id").notNull().references(() => products.id, { onDelete: "restrict" }), affiliateLinkId: uuid("affiliate_link_id").notNull().references(() => affiliateLinks.id, { onDelete: "restrict" }), marketplaceId: uuid("marketplace_id").notNull().references(() => marketplaces.id, { onDelete: "restrict" }), categoryId: uuid("category_id").references(() => categories.id, { onDelete: "set null" }), sourcePage: text("source_page").notNull(), referrerClass: text("referrer_class"), sessionHash: text("session_hash"), occurredAt: timestamp("occurred_at", { withTimezone: true }).defaultNow().notNull(), createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull() }, (t) => [index("click_events_product_time_idx").on(t.productId, t.occurredAt), index("click_events_time_idx").on(t.occurredAt)]);
+
+export const pageViews = pgTable("page_views", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  occurredAt: timestamp("occurred_at", { withTimezone: true }).defaultNow().notNull(),
+  pageType: text("page_type").notNull(),
+  pageKey: text("page_key"),
+  trafficSource: text("traffic_source").notNull(),
+  trafficMedium: text("traffic_medium"),
+  campaign: text("campaign"),
+}, (t) => [
+  index("page_views_time_idx").on(t.occurredAt),
+  index("page_views_page_type_time_idx").on(t.pageType, t.occurredAt),
+  index("page_views_traffic_source_time_idx").on(t.trafficSource, t.occurredAt),
+]);

@@ -1,0 +1,8 @@
+import { describe, expect, it } from "vitest";
+import { normalizeTraffic, pageFromPath, sanitizeDimension, validatePageView } from "@/analytics/domain";
+describe("SPEC-009 PageView privacy contract", () => {
+  it("uses controlled page types and bounded page keys", () => { expect(pageFromPath("/")).toEqual({pageType:"HOME",pageKey:null}); expect(pageFromPath("/produto/item-valido")).toEqual({pageType:"PRODUCT",pageKey:"item-valido"}); expect(pageFromPath("/arbitrary/path")).toEqual({pageType:"OTHER",pageKey:null}); expect(validatePageView({path:"/?email=x@y.com"})).toBeNull(); });
+  it("normalizes traffic without retaining raw referrers", () => { expect(normalizeTraffic("https://www.google.com/search?q=x","https://garimora.test",null,null)).toBe("ORGANIC_SEARCH"); expect(normalizeTraffic(null,"https://garimora.test","instagram",null)).toBe("INSTAGRAM"); expect(normalizeTraffic("https://example.org/a?secret=1","https://garimora.test",null,null)).toBe("REFERRAL"); });
+  it("sanitizes UTM dimensions, rejects PII and limits length", () => { expect(sanitizeDimension(" Summer Promo!! ",20)).toBe("summer-promo"); expect(sanitizeDimension("person@example.com")).toBeNull(); expect(sanitizeDimension("cpf=123.456.789-00")).toBeNull(); expect(sanitizeDimension("x".repeat(200),40)).toHaveLength(40); });
+  it("returns only the maximum authorized persistence fields", () => { const event=validatePageView({path:"/categoria/cozinha",referrer:"https://social.example/u?email=a@b.com",origin:"https://garimora.test",utmMedium:"social",campaign:"primavera"}); expect(Object.keys(event!).sort()).toEqual(["campaign","occurredAt","pageKey","pageType","trafficMedium","trafficSource"].sort()); expect(JSON.stringify(event)).not.toContain("social.example"); });
+});
