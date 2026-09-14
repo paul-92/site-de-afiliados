@@ -2,6 +2,7 @@ export const PAGE_TYPES = ["HOME", "CATEGORY", "PRODUCT", "SEARCH", "FEATURED", 
 export const TRAFFIC_SOURCES = ["ORGANIC_SEARCH", "INSTAGRAM", "TIKTOK", "PINTEREST", "PAID", "DIRECT", "REFERRAL", "OTHER"] as const;
 export type PageType = (typeof PAGE_TYPES)[number];
 export type TrafficSource = (typeof TRAFFIC_SOURCES)[number];
+const PUBLIC_OTHER_PATHS = new Set(["/privacidade", "/termos", "/afiliados"]);
 export interface PageViewInput { pageType: PageType; pageKey: string | null; trafficSource: TrafficSource; trafficMedium: string | null; campaign: string | null; occurredAt: Date }
 
 const PII = /(?:@|\b\d{3}[.\s-]?\d{3}[.\s-]?\d{3}[-\s]?\d{2}\b|\b(?:email|cpf|phone|telefone|nome|name)=)/i;
@@ -42,6 +43,6 @@ export function normalizeTraffic(referrer: unknown, origin: unknown, utmSource: 
 }
 export function validatePageView(raw: Record<string, unknown>, now = new Date()): PageViewInput | null {
   const page = pageFromPath(raw.path);
-  if (page.pageType === "OTHER") return null;
+  if (page.pageType === "OTHER" && (typeof raw.path !== "string" || !PUBLIC_OTHER_PATHS.has(raw.path))) return null;
   return { ...page, trafficSource: normalizeTraffic(raw.referrer, raw.origin, raw.utmSource, raw.utmMedium), trafficMedium: sanitizeDimension(raw.utmMedium, 40), campaign: sanitizeDimension(raw.campaign, 80), occurredAt: now };
 }
