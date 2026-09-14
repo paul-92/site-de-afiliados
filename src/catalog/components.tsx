@@ -11,18 +11,18 @@ export function offerHref(slug: string, source: SourcePage) {
 }
 
 export function ProductCard({ product, source }: { product: PublicProduct; source: SourcePage }) {
-  return <article className="product-card">
+  return <article className={`product-card product-card-${product.category.slug}`}>
     <Link className="image-frame" href={`/produto/${product.slug}`} aria-label={`Abrir ${product.title}`}>
       {/* Stored catalog images are editorially approved at the publication gate. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={product.imageUrl} alt={product.imageAlt} width="480" height="360" loading="lazy" />
     </Link>
     <div className="product-card-body">
-      <p className="eyebrow"><Link href={`/categoria/${product.category.slug}`}>{product.category.name}</Link>{product.featured ? <span className="pill">Achado</span> : null}</p>
+      <div className="card-meta"><Link href={`/categoria/${product.category.slug}`}>{product.category.name}</Link>{product.featured ? <span className="pill">Achado</span> : null}</div>
       <h3><Link href={`/produto/${product.slug}`}>{product.title}</Link></h3>
       <p className="card-copy">{product.shortDescription}</p>
       {product.latestPrice ? <p className="price">{formatPrice(product.latestPrice.amount, product.latestPrice.currency)}<sup>*</sup></p> : <p className="muted">Consulte o preço na loja</p>}
-      <div className="card-actions"><Link className="text-link" href={`/produto/${product.slug}`}>Ver detalhes</Link><a className="button" href={offerHref(product.slug, source)}>Ver oferta</a></div>
+      <div className="card-actions"><Link className="text-link" href={`/produto/${product.slug}`}>Detalhes</Link><a className="button" href={offerHref(product.slug, source)}>Ver oferta <span aria-hidden="true">→</span></a></div>
     </div>
   </article>;
 }

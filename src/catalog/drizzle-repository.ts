@@ -115,3 +115,10 @@ export async function withCatalogRepository<T>(work: (repository: CatalogReposit
   const { db, close } = createDatabase();
   try { return await work(new DrizzleCatalogRepository(db)); } finally { await close(); }
 }
+
+export async function withPublicCatalogRepository<T>(work: (repository: CatalogRepository) => Promise<T>) {
+  const { demoIsEnabled, DemoCatalogRepository } = await import("./demo");
+  if (demoIsEnabled()) return work(new DemoCatalogRepository());
+  if (!process.env.DATABASE_URL) throw new Error("PUBLIC_CATALOG_NOT_CONFIGURED");
+  return withCatalogRepository(work);
+}

@@ -2,14 +2,15 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CatalogUnavailable, formatPrice, offerHref, PriceDisclosure } from "@/catalog/components";
-import { withCatalogRepository } from "@/catalog/drizzle-repository";
+import { withPublicCatalogRepository } from "@/catalog/drizzle-repository";
 import { getPublicProduct } from "@/catalog/use-cases";
 
 export const dynamic = "force-dynamic";
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  if (!process.env.DATABASE_URL) return <CatalogUnavailable/>;
-  const product = await withCatalogRepository((repository) => getPublicProduct(repository, slug));
+  let product;
+  try { product = await withPublicCatalogRepository((repository) => getPublicProduct(repository, slug)); }
+  catch { return <CatalogUnavailable/>; }
   if (!product) notFound();
   return <article className="product-detail">
     <div className="product-media"><img src={product.imageUrl} alt={product.imageAlt} width="800" height="600"/></div>
