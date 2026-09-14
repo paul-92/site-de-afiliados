@@ -3,15 +3,18 @@ import Link from "next/link";
 import { CatalogUnavailable, PriceDisclosure, ProductGrid } from "@/catalog/components";
 import { withPublicCatalogRepository } from "@/catalog/drizzle-repository";
 import { listPublicCategories, searchPublicCatalog } from "@/catalog/use-cases";
+import { homeMetadata } from "@/seo/metadata";
+import { JsonLdScript, itemListJsonLd, websiteJsonLd } from "@/seo/structured-data";
 
 export const dynamic = "force-dynamic";
+export const metadata = homeMetadata();
 export default async function HomePage() {
   let data;
   try { data = await withPublicCatalogRepository(async (repository) => ({
     featured: await searchPublicCatalog(repository, { featured: true, limit: 4 }), under30: await searchPublicCatalog(repository, { maxPrice: 30, limit: 4 }),
     under50: await searchPublicCatalog(repository, { maxPrice: 50, limit: 4 }), newest: await searchPublicCatalog(repository, { order: "NEWEST", limit: 4 }), categories: await listPublicCategories(repository),
   })); } catch { return <><Hero/><CatalogUnavailable/></>; }
-  return <><Hero/>
+  return <><JsonLdScript data={websiteJsonLd()}/><JsonLdScript data={itemListJsonLd("Achados da Garimora", "/", data.featured)}/><Hero/>
     <CatalogSection eyebrow="Achados da semana" title="Uma seleção pequena. Boas descobertas." href="/achados"><ProductGrid products={data.featured} source="FEATURED"/></CatalogSection>
     <section className="section" id="categorias"><div className="section-heading"><div><p className="eyebrow">Explore por categoria</p><h2>Encontre seu próximo achado</h2></div></div><div className="category-grid">{data.categories.map((category, index) => <Link className={`category-card category-${index + 1}`} href={`/categoria/${category.slug}`} key={category.slug}><span className="category-number">0{index + 1}</span><strong>{category.name}</strong><span>{category.description ?? "Descubra nossa seleção."}</span><b aria-hidden="true">→</b></Link>)}</div></section>
     <CatalogSection eyebrow="Pequenos preços, boas ideias" title="Até R$ 30" href="/ate-30"><ProductGrid products={data.under30} source="PRICE_BUCKET"/></CatalogSection>

@@ -16,6 +16,8 @@ Run `npm ci` (only when dependencies are not installed), then `npm run dev`, and
 
 The DEMO boundary is enforced in code: it requires `NODE_ENV=development`, has no production fallback, uses only a local generated image, and routes commercial clicks server-side to the reserved `.example` domain. In production, a configured `DATABASE_URL` remains mandatory and the catalog fails closed without it.
 
+Production canonical, Open Graph, robots sitemap reference, and sitemap URLs require `GARIMORA_SITE_URL` as a credential-free HTTPS origin with no path, query, or fragment. Without a valid origin, absolute SEO output fails closed; development defaults to `http://localhost:3000`.
+
 ## Boundaries
 
 - `/`, `/categoria/[slug]`, and `/produto/[slug]` consume the public catalog boundary. They expose only publishable `ACTIVE` products and support search/category/tag filters.

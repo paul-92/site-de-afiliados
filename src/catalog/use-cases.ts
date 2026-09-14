@@ -25,12 +25,14 @@ export async function searchPublicCatalog(repository: CatalogRepository, query: 
 }
 
 export function listPublicCategories(repository: CatalogRepository) { return repository.listPublicCategories(); }
-export function getPublicCategory(repository: CatalogRepository, slug: string) {
+export async function getPublicCategory(repository: CatalogRepository, slug: string) {
   const normalized = slug.trim().toLowerCase();
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(normalized) || normalized.length > 120) return null;
   return repository.findPublicCategory(normalized);
 }
 
-export function getPublicProduct(repository: CatalogRepository, slug: string) {
-  return repository.findPublicBySlug(slug.trim().toLowerCase());
+export async function getPublicProduct(repository: CatalogRepository, slug: string) {
+  const normalized = slug.trim().toLowerCase();
+  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(normalized) || normalized.length > 120) return null;
+  return repository.findPublicBySlug(normalized);
 }
