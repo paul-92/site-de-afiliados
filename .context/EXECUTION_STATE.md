@@ -1,12 +1,15 @@
 # Execution state
 
-- Branch: `feature/spec-004-product-catalog`
-- SPEC-003 / PLAN-003: ACCEPTED / DONE; baseline pushed to `origin/feature/spec-003-engineering-foundation`
-- PLAN-004: IMPLEMENTED / QUALITY GATES PASS
+- Branch: `feature/spec-007-public-frontend`
+- SPEC-003 through SPEC-007: ACCEPTED/DONE
+- PLAN-007: COMPLETED
+- SPEC-007 G3: PASS
+- SPEC-007 G4: HUMAN APPROVED
+- SPEC-007 correction window: COMPLETED
+- SPEC-007 visual review: HUMAN APPROVED
+- Accepted baseline: `d9efadf08cad10cefc8cc3e5ff2983382c0ce08e`
 - ADR-001–007: FROZEN
 - Production: PROTECTED / untouched
-- SPEC-004: AWAITING G3/G4 HUMAN review
-- SPEC-005: G1 APPROVED; implementation unauthorized
-- Next human gate: G3/G4 HUMAN review
+- Next authorized activity: publish the accepted SPEC-007 branch; then SPEC-008 planning only
 
-The SPEC-004 branch was derived from approved baseline commit `8bd702f1f7c3b04e6627aa3791a76f9b9ca088b5`. No merge, deployment, production migration or SPEC-004 push was performed.
+No PR, merge, deployment, production migration, `main` change, SPEC-008 implementation, or BACKLOG work is authorized.

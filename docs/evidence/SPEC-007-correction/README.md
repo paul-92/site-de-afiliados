@@ -1,5 +1,11 @@
 # SPEC-007 correction window — visual evidence
 
+**Status:** COMPLETED
+
+**Visual review:** HUMAN APPROVED
+
+**Accepted baseline:** `d9efadf08cad10cefc8cc3e5ff2983382c0ce08e`
+
 Captured locally on 2026-09-14 from the database-free development catalog.
 
 - `home-desktop.png` — Home at 1440 × 1100.

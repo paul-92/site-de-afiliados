@@ -1,6 +1,8 @@
 # SPEC-007 — Public Frontend & Discovery
 
-**Status:** G1 APPROVED · IMPLEMENTED · AWAITING G3/G4  
+**Status:** ACCEPTED/DONE · G3 PASS · G4 HUMAN APPROVED
+
+**Accepted baseline:** `d9efadf08cad10cefc8cc3e5ff2983382c0ce08e`
 **Priority:** P0  
 **Dependencies:** SPEC-003/004/005/006 ACCEPTED/DONE
 

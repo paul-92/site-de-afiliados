@@ -1,5 +1,5 @@
 # AI handoff
 
-PLAN-004 has been implemented and is stopped at HUMAN G3/G4. Do not infer authorization to merge, deploy, push the SPEC-004 branch or begin downstream implementation.
+SPEC-007 is ACCEPTED/DONE at baseline `d9efadf08cad10cefc8cc3e5ff2983382c0ce08e`. G3 is PASS; G4 and the visual review are HUMAN APPROVED; PLAN-007 and the correction window are COMPLETED. The accepted branch `feature/spec-007-public-frontend` is authorized for publication to origin. The project is ready for SPEC-008 planning, not implementation.
 
-Still prohibited: production deployment or migration, domain purchase, main merge, push without explicit authorization, scraping, real affiliate links, real secrets, full Admin UI, SPEC-005 tracking and material ADR changes. The SPEC-004 migration is additive and has not been applied to any database.
+Still prohibited: PR, merge, deployment, production migration, `main` changes, SPEC-008 implementation, BACKLOG implementation, domain purchase, scraping, real secrets, and material ADR changes.
