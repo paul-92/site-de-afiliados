@@ -4,8 +4,11 @@
 
 - Branch: `feature/spec-008-seo-content`
 - Starting baseline: `eb85af818f7495bae6916787d975f8f9e93484df`
-- SPEC-008: IMPLEMENTED / AWAITING HUMAN G3/G4
-- PLAN-008: EXECUTED / QUALITY GATES PASS
+- Accepted functional baseline: `c76cd1d984f1f0ca6897a4c11a91f457265a1378`
+- G3: PASS
+- G4: HUMAN APPROVED
+- SPEC-008: ACCEPTED/DONE
+- PLAN-008: COMPLETED
 - STOP CONDITION: none encountered
 
 ## Metadata and canonical
@@ -56,4 +59,6 @@ Vitest retains the known forward-looking Vite native config-loader warning; it d
 
 ## Scope confirmation
 
-No schema, migration, ADR, tracking, Publication Gate, dependency, CMS, analytics, Search Console, production integration, or material visual change was made. No push, PR, merge, deployment, or `main` change occurred. Final implementation commit follows this record.
+No schema, migration, ADR, tracking, Publication Gate, dependency, CMS, analytics, Search Console, production integration, or material visual change was made. The Product Owner accepted the functional baseline after 59/59 tests, a passing production build, unchanged schema/migrations, and a runtime audit with 0 vulnerabilities. The known development-only `drizzle-kit` advisory chain remains explicitly accepted.
+
+Publication is limited to `feature/spec-008-seo-content`. No PR, merge, deployment, `main` change, SPEC-009 implementation, Search Console configuration, or BACKLOG work is authorized.

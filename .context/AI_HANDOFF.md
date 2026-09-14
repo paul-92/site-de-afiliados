@@ -1,5 +1,5 @@
 # AI handoff
 
-SPEC-007 is ACCEPTED/DONE and published at baseline `eb85af818f7495bae6916787d975f8f9e93484df`. SPEC-008 SEO & Content Foundation is implemented locally on `feature/spec-008-seo-content`; PLAN-008 is executed and stopped at HUMAN G3/G4.
+SPEC-008 is ACCEPTED/DONE at functional baseline `c76cd1d984f1f0ca6897a4c11a91f457265a1378`. G3 is PASS, G4 is HUMAN APPROVED, and PLAN-008 is COMPLETED. The accepted branch `feature/spec-008-seo-content` is authorized for publication to origin. The project is ready for SPEC-009 planning, not implementation.
 
-Still prohibited: push, PR, merge, deployment, production migration, `main` changes, BACKLOG implementation, domain purchase, scraping, real secrets, and material ADR/domain changes. Do not start downstream implementation before HUMAN acceptance.
+Still prohibited: PR, merge, deployment, production migration, `main` changes, SPEC-009 implementation, Search Console configuration, BACKLOG implementation, domain purchase, scraping, real secrets, and material ADR/domain changes.

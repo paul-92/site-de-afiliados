@@ -1,8 +1,10 @@
 # SPEC-008 — SEO & Content Foundation
 
-**Status:** G1/G2 APPROVED · IMPLEMENTED · AWAITING HUMAN G3/G4
+**Status:** ACCEPTED/DONE · G3 PASS · G4 HUMAN APPROVED
 
-**Accepted baseline:** `eb85af818f7495bae6916787d975f8f9e93484df`
+**Starting baseline:** `eb85af818f7495bae6916787d975f8f9e93484df`
+
+**Accepted functional baseline:** `c76cd1d984f1f0ca6897a4c11a91f457265a1378`
 
 ## Objective
 
