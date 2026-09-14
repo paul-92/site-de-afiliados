@@ -1,10 +1,10 @@
 # GARIMORA RC-1 release candidate report
 
-**Candidate status:** CREATED · AWAITING HUMAN G3/G4
+**Status:** HUMAN APPROVED · SPEC-011 ACCEPTED/DONE · PLAN-011 COMPLETED
 
 **Baseline:** `3f6000fa0703ac8f4413968fb4d5fc9f3c576540`
 
-**RC-1 functional HEAD:** `bfea580c3298046ba8ca4d49fa49f33f43607448`
+**Accepted RC-1 functional baseline:** `cb031c233d7084e63c1f6d864afd47060557535c`
 
 ## Results
 
@@ -20,5 +20,6 @@
 - Console: zero material browser console/page errors after fixes. Production's deliberately missing database emitted an internal server diagnostic while public UI remained controlled and stack-free.
 - Migration readiness: order/journal, additive SQL, indexes, Drizzle check, snapshot and deterministic regeneration PASS. Clean database application could not be run without local PostgreSQL/Docker and is assigned to SPEC-012.
 - Runtime dependency audit: 0 vulnerabilities. Known development-only `drizzle-kit` chain: 4 moderate advisories accepted from SPEC-010.
+- Final severity count: P0 = 0, P1 = 0, P2 = 0. P3 preserves the pre-existing Vite native config-loader warning and harmless `NO_COLOR` tooling notice.
 
-No schema/migration, Auth bypass, material tracking, Publication Gate, business model or architecture change was made. RC-1 does not mean production readiness without SPEC-012 validation.
+G3 is PASS and G4 is HUMAN APPROVED. No schema/migration, Auth bypass, material tracking, Publication Gate, business model or architecture change was made. RC-1 does not mean production readiness without SPEC-012 validation.
