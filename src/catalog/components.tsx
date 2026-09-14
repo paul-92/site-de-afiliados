@@ -33,7 +33,7 @@ export function ProductGrid({ products, source, emptyMessage = "Ainda não encon
 }
 
 export function PriceDisclosure() {
-  return <p className="disclosure"><sup>*</sup> Preço de referência observado recentemente. O valor e a disponibilidade no marketplace podem mudar.</p>;
+  return <p className="disclosure"><sup>*</sup> Preço de referência observado, não preço em tempo real. O valor pode mudar e a disponibilidade pertence ao marketplace. O preço final é o apresentado pelo marketplace; a Garimora não processa a compra.</p>;
 }
 
 export function CatalogUnavailable() {

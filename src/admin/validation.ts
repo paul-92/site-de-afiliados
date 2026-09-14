@@ -26,7 +26,10 @@ export function httpsUrl(value: FormDataEntryValue | null, field: string, option
   if (!text && optionalValue) return null;
   try {
     const url = new URL(text);
-    if (url.protocol !== "https:" || url.username || url.password) throw new Error();
+    if (text.length > 2048 || url.protocol !== "https:" || url.username || url.password || !url.hostname) throw new Error();
+    if (url.hostname === "localhost" || url.hostname.endsWith(".localhost") || /^(?:127\.|10\.|192\.168\.|169\.254\.|0\.|\[?::1\]?$)/i.test(url.hostname)) throw new Error();
+    const private172 = url.hostname.match(/^172\.(\d{1,3})\./);
+    if (private172 && Number(private172[1]) >= 16 && Number(private172[1]) <= 31) throw new Error();
     return url.toString();
   } catch { throw new AdminValidationError(`${field} deve ser uma URL HTTPS pública.`); }
 }
