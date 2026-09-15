@@ -130,7 +130,7 @@ describe("SPEC-008 structured data, content, and safety", () => {
   });
 
   it("marks Search and Admin noindex and never exposes raw AffiliateLink destinations in SEO modules", () => {
-    const search = readFileSync("src/app/buscar/page.tsx", "utf8");
+    const search = readFileSync("src/app/(public)/buscar/page.tsx", "utf8");
     const admin = readFileSync("src/app/admin/layout.tsx", "utf8");
     const seo = ["src/seo/config.ts", "src/seo/metadata.ts", "src/seo/structured-data.tsx", "src/app/sitemap.ts"].map((file) => readFileSync(file, "utf8")).join("\n");
     expect(search).toMatch(/robots:\s*\{ index: false/);

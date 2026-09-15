@@ -1,6 +1,6 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
-import { AdminNav } from "@/admin/components";
+import { AdminNavigation, isAdminRouteActive } from "@/admin/admin-shell";
 import AnalyticsLoading from "@/app/admin/analytics/loading";
 import { ANALYTICS_SNAPSHOT_TIMEOUT_MS, DrizzleAnalyticsRepository } from "@/analytics/drizzle-repository";
 
@@ -20,9 +20,12 @@ const completeRows = [
 
 describe("SPEC-012 analytics runtime navigation", () => {
   it("renders a real Analytics link in the Admin navigation", () => {
-    const html = renderToStaticMarkup(<AdminNav />);
+    const html = renderToStaticMarkup(<AdminNavigation pathname="/admin/analytics" />);
     expect(html).toContain('href="/admin/analytics"');
-    expect(html).toContain(">Analytics</a>");
+    expect(html).toContain(">Analytics</span>");
+    expect(html).toContain('aria-current="page"');
+    expect(isAdminRouteActive("/admin/products/example", "/admin/products")).toBe(true);
+    expect(isAdminRouteActive("/admin/analytics", "/admin")).toBe(false);
   });
 
   it("provides accessible loading feedback for the destination", () => {

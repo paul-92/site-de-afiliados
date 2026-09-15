@@ -22,12 +22,12 @@ describe("public storefront", () => {
     expect(classifyTraffic("https://garimora.example/go/item?source=EVIL", "https://garimora.example/buscar?q=x").sourcePage).toBe("SEARCH");
   });
   it("keeps public landmarks, labels, and keyboard focus styles", () => {
-    const layout = readFileSync("src/app/layout.tsx", "utf8"); const css = readFileSync("src/app/globals.css", "utf8");
+    const layout = readFileSync("src/app/(public)/layout.tsx", "utf8"); const css = readFileSync("src/app/globals.css", "utf8");
     expect(layout).toMatch(/<header|<main|<footer|aria-label="Navegação principal"/);
     expect(layout).toContain("Pular para o conteúdo"); expect(css).toContain(":focus-visible");
   });
   it("never embeds affiliate destinations in public UI modules", () => {
-    const files = ["src/catalog/components.tsx", "src/app/page.tsx", "src/app/produto/[slug]/page.tsx"];
+    const files = ["src/catalog/components.tsx", "src/app/(public)/page.tsx", "src/app/(public)/produto/[slug]/page.tsx"];
     for (const file of files) expect(readFileSync(file, "utf8")).not.toMatch(/affiliateLinks?\.url|affiliate\.example|shopee\.com/i);
     expect(offerHref(product.slug, "PRODUCT")).toBe("/go/organizador-pratico?source=PRODUCT");
   });
