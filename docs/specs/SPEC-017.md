@@ -1,6 +1,6 @@
 # SPEC-017 — Production Readiness & Release
 
-**Status:** G1 HUMAN APPROVED · PLANNED · NO PRODUCTION MUTATION AUTHORIZED
+**Status:** G2A HUMAN APPROVED · G2B/G2C PREPARATION COMPLETE · NO PRODUCTION MUTATION AUTHORIZED
 
 **Functional baseline:** `27659a80bc5971fdc91dc2ea45578b153c460305`
 
@@ -55,7 +55,7 @@ Every finding and checkpoint must use one status:
 
 ## Required HUMAN inputs
 
-- Final canonical Production domain and responsible owner.
+- Exact canonical Production origin and responsible owner. The MVP may use the official Vercel Production `*.vercel.app` hostname; a paid/custom domain is deferred post-launch.
 - Truthful controller/business identity, general contact, and privacy-rights contact.
 - Production owner, database operator, security/log owner, and launch decision-maker.
 - Authorized Supabase project and authorized Admin user UUIDs.
@@ -67,12 +67,13 @@ Every finding and checkpoint must use one status:
 
 ## Provider and environment requirements
 
-- Separate Production and Preview credentials and resources.
+- Preview and Production may temporarily share the validated Garimora Supabase project for the MVP under the explicit G2A risk acceptance. From Production preparation onward, that shared project is Production-sensitive: Preview must not perform destructive tests, indiscriminate data generation, or any operation that can compromise real Production data. Future isolation requires a separate review.
+- Vercel Preview and Production environment scopes remain distinct even while their Supabase target is shared.
 - Production values for `DATABASE_URL`, `ADMIN_USER_IDS`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and `GARIMORA_SITE_URL` validated without exposing values.
 - `GARIMORA_DEMO` unable to enable DEMO behavior in Production.
 - `SUPABASE_SERVICE_ROLE_KEY` remains unused and should not be configured without a separately approved need.
 - Supabase Auth origins/redirects, authorized users, database connectivity, backups, Data API exposure, grants, and RLS posture verified.
-- Final DNS, canonical redirect, certificate, HTTPS, and hosting bindings verified.
+- Exact official Vercel Production hostname, canonical behavior, certificate, HTTPS, and hosting bindings verified. Preview URLs must never become canonical.
 - CSP verified against actual Production origins without broad weakening.
 - HSTS remains off until end-to-end HTTPS evidence is accepted, then requires separate authorization.
 - PageView retention scheduling requires separate authorization, execution evidence, and observation.
@@ -81,7 +82,7 @@ Every finding and checkpoint must use one status:
 
 1. Validate migrations `0000`, `0001`, and `0002` in journal order on a clean representative PostgreSQL database.
 2. Verify final enums, tables, foreign keys, unique constraints, indexes, and migration history.
-3. Reconcile any pre-existing Production schema or data before mutation.
+3. Reconcile the shared Supabase project's pre-existing schema and data before mutation; treat all existing state as potentially Production data.
 4. Record backup/PITR capability and a tested restore or provider-supported recovery procedure.
 5. Prefer application rollback plus reviewed forward repair; do not assume destructive down migrations.
 6. Apply only the reviewed migration set in the authorized window.
@@ -123,9 +124,9 @@ Every finding and checkpoint must use one status:
 - Publish real business/controller and privacy-contact information; no placeholder claims.
 - Preserve affiliate, price, marketplace and no-purchase-processing disclosures.
 - Confirm the privacy text matches actual PageView, ClickEvent, Auth, cookie, and retention behavior.
-- Configure the exact HTTPS `GARIMORA_SITE_URL`.
+- Configure `GARIMORA_SITE_URL` with the exact verified HTTPS Vercel Production origin.
 - Verify canonical metadata, noindex boundaries, robots.txt, and sitemap on the final domain with real eligible catalog data.
-- Verify DNS, certificate, redirect policy, mixed-content absence, CSP, and security headers.
+- Verify the Production hostname, certificate, redirect policy, mixed-content absence, CSP, and security headers. Custom-domain purchase/configuration is not required for MVP launch.
 - HSTS activation is a separately authorized post-HTTPS action.
 
 ## Monitoring, backup, rollback, and abort contract

@@ -1,6 +1,6 @@
 # PLAN-017 — Production Readiness & Release
 
-**Status:** G1 HUMAN APPROVED · G2A READINESS/INPUT CHECKPOINT NEXT
+**Status:** G2A HUMAN APPROVED · G2B/G2C PREPARATION COMPLETE · AWAITING MUTATION GATES
 
 **Functional baseline:** `27659a80bc5971fdc91dc2ea45578b153c460305`
 
@@ -34,7 +34,7 @@ No gate implicitly grants a later gate. HSTS, retention-scheduler activation, DN
 
 ## Stage 2 — HUMAN business inputs
 
-- Record final domain, owner, business/controller identity, contacts and legal approver.
+- Record the exact official Vercel Production hostname and responsible project owner. A paid/custom domain is deferred post-launch due to current budget.
 - Record Production, database, security/log, release and rollback owners.
 - Approve Supabase/Vercel targets and Admin UUID owners without placing secrets in Git.
 - Approve marketplaces, initial affiliate URL inventory and eligibility rules.
@@ -43,9 +43,11 @@ No gate implicitly grants a later gate. HSTS, retention-scheduler activation, DN
 
 **Gate G2A:** HUMAN accepts complete truthful inputs and provider targets.
 
+**G2A result:** HUMAN APPROVED. Preview and Production may temporarily share the validated Garimora Supabase project for the MVP. The shared project is now Production-sensitive; no remote SQL, migration, Auth, grant, RLS, Data API, backup/recovery, scheduler, environment, deployment, HSTS, data-creation, or launch mutation is authorized.
+
 ## Stage 3 — Provider configuration preparation
 
-- Prepare a redacted Preview-versus-Production environment matrix.
+- Prepare a redacted Preview-versus-Production environment matrix. Preserve distinct Vercel scopes while recording the explicitly accepted shared Supabase target.
 - Prepare exact Vercel, Supabase Auth, database, DNS, domain, certificate, CSP, logging, backup and scheduler change sheets.
 - Verify current provider state read-only when separately authorized.
 - Confirm Data API exposure/grants/RLS posture and document any remediation as a stop condition.
@@ -81,7 +83,7 @@ After applicable G2B/G2C decisions only:
 - Confirm backup and recovery readiness.
 - Apply approved migrations.
 - Configure approved environment variables and Supabase Auth origins.
-- Configure approved domain/DNS/hosting bindings.
+- Confirm the exact official Vercel Production hostname and hosting binding. Do not purchase or configure a custom domain.
 - Verify certificate and HTTPS.
 - Validate CSP before any broadening; preserve current restrictions.
 - Activate PageView retention scheduler only through its explicit authorization.
@@ -191,4 +193,4 @@ Capture timestamps, exact commit/deploy identifiers, expected versus observed re
 
 ## Current stop
 
-SPEC-017 and PLAN-017 are G1-approved. The next checkpoint is G2A readiness/input review. No branch creation, merge, deployment, Vercel/Supabase/DNS mutation, remote migration, secret change, HSTS activation, scheduler activation, Production data creation, AdSense work, paid spend, campaign publication, or public launch is authorized.
+G2A is HUMAN-approved and the preparation-only G2B/G2C packages are documented. Stop at the next HUMAN mutation gates. No branch creation, merge, deployment, Vercel/Supabase/DNS mutation, remote SQL or migration, environment/secret change, Auth change, RLS/grant/Data API change, backup/restore action, HSTS activation, scheduler activation, Production data creation, AdSense work, paid spend, campaign publication, or public launch is authorized.
