@@ -1,6 +1,6 @@
 # SPEC-015 — Admin Cockpit UX/UI Redesign
 
-**Status:** G1/G2 HUMAN APPROVED · SLICES 1–3 COMPLETE · AWAITING HUMAN SHELL APPROVAL
+**Status:** ACCEPTED/DONE · G3 PASS · G4 HUMAN APPROVED
 
 **Planning baseline:** `4e44ff4babccffe01af058fab8225401b7aa268d`
 
