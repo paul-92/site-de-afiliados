@@ -52,3 +52,18 @@ Dashboard semantics remain four independent counts. With a one-connection pool, 
 12. Confirm no invocation reaches 300 seconds and no runtime log includes credentials, cookies, JWTs, email, URL, query text, or parameters.
 
 Local tests cannot establish Vercel-to-Supabase connectivity. Final root-cause confirmation remains dependent on the Preview timing sequence and correlated provider logs.
+
+## Analytics navigation correction
+
+Preview validation of `d82c8c4` confirmed Auth, `/admin`, dashboard PostgreSQL queries, page-view tracking, and the removal of the 300-second timeout. It also found that client navigation to `/admin/analytics` remained visually on `/admin`.
+
+The navigation markup and route are valid. The destination blocks on an Analytics snapshot composed of eleven queries. With the serverless pool deliberately limited to one connection, the former `Promise.all` created eleven queued operations without the dashboard's application deadline. The correction keeps every SQL statement and metric unchanged, executes the eleven operations explicitly in sequence, and applies one 30-second deadline to the complete snapshot. This avoids starting eleven deadlines while ten operations are waiting for the pool, prevents partial snapshots, and still reaches the existing error boundary well before Vercel's runtime limit. Individual sanitized timings identify the active metric without recording SQL or data.
+
+A segment-level `/admin/analytics/loading.tsx` now exposes `role=status`, `aria-live=polite`, and `aria-busy=true` while the destination is loading. Preview must confirm that the loading UI is displayed during a non-instant navigation.
+
+Additional Preview validation:
+
+1. From `/admin`, click `Analytics` and confirm immediate accessible loading feedback followed by URL `/admin/analytics`.
+2. Confirm exactly eleven successful Analytics operation timings followed by a successful `analytics-snapshot` timing under 30 seconds.
+3. Exercise 7-, 30-, and 90-day selectors and confirm complete KPIs, rankings, and trends.
+4. Confirm no partial metrics appear on failure and the safe error boundary replaces the destination within approximately 35 seconds including teardown.
