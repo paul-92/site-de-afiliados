@@ -1,69 +1,125 @@
-# SPEC-012 — Runtime timeout correction evidence
+# SPEC-012 — Runtime timeout correction and Preview evidence
 
 ## Baseline and scope
 
-- Accepted baseline: `85e89c888380b314dc86c2fbf338ecbe9a1c5967`.
+- Starting accepted baseline: `85e89c888380b314dc86c2fbf338ecbe9a1c5967`.
+- Final HUMAN-validated functional HEAD: `88491f09204ef373514fddea904c1451d16530e9`.
 - Correction branch: `feature/spec-012-runtime-timeout-correction`.
-- Scope is limited to safe timing telemetry, PostgreSQL lifecycle hardening, bounded database work, tests, and this evidence.
-- No schema, migration, Supabase, Vercel, secret, authorization, tracking, or product behavior change is included.
+- Scope was limited to sanitized timing telemetry, PostgreSQL lifecycle hardening, bounded database work, Analytics runtime integration, tests, and evidence.
+- The code corrections made no schema, migration, dependency, authorization, tracking, product behavior, secret, Supabase configuration, or Vercel configuration change.
 
-## Diagnosis and timing model
+## Recovered incident sequence
 
-The strongest common cause of both observed 300-second timeouts is database work initiated while rendering `/admin`. A successful login redirects to `/admin`, and a direct authenticated GET follows the same authorization and dashboard database path. The application previously had no query deadline, and `client.end()` had no timeout, so either work or teardown could remain pending until Vercel terminated the invocation.
+### A. Original 300-second runtime failure
 
-Safe `runtime_timing` events now distinguish `AUTH`, `CONNECT`, `QUERY`, and `TEARDOWN`. Postgres.js creates connections lazily: `database-client-create` measures synchronous client construction, while DNS, TCP, TLS, database authentication, pool wait, and SQL execution are included in the first `QUERY` duration. Logs intentionally contain no URL, credentials, keys, cookies, sessions, user identity, query text, or parameters.
+Preview produced 300-second Vercel timeouts while database work was initiated during `/admin` rendering. A successful login redirected to `/admin`, and a direct authenticated request followed the same authorization and dashboard database path. The application had no application query deadline, and `client.end()` had no teardown timeout, so database work or teardown could remain pending until the platform terminated the invocation.
 
-## Runtime correction
+### B. Fail-fast runtime correction — `d82c8c4`
+
+Commit `d82c8c48c6b10b73b0ebe2bb2ba19294b67bd8b3` hardened runtime behavior. It introduced conservative serverless PostgreSQL settings, bounded application work and teardown, and sanitized `runtime_timing` events for `AUTH`, `CONNECT`, `QUERY`, and `TEARDOWN`.
+
+Postgres.js creates connections lazily: `database-client-create` measures synchronous client construction, while DNS, TCP, TLS, database authentication, pool wait, and SQL execution are included in the first `QUERY` duration. Logs intentionally contain no URL, credentials, keys, cookies, sessions, user identity, query text, or parameters.
 
 | Setting | Value | Rationale |
 | --- | ---: | --- |
 | `prepare` | `false` | Required for the Supabase transaction pooler mode. |
-| `max` | `1` | Conservative per-invocation pool size for serverless; avoids four simultaneous connections for dashboard counts. |
-| `connect_timeout` | 10 seconds | Allows normal network establishment while failing far before the 300-second platform limit. |
-| `statement_timeout` | 15 seconds | Server-side cancellation of an executing statement. |
-| application query deadline | 20 seconds | Bounds client/network stalls not covered by a server statement timeout. |
-| `idle_timeout` | 20 seconds | Prevents an unexpectedly retained client from holding an idle connection indefinitely. |
-| `max_lifetime` | 300 seconds | Rotates retained connections and matches a conservative serverless lifecycle. |
-| teardown timeout | 5 seconds | `client.end({ timeout: 5 })` destroys work that cannot close cleanly. |
-| SSL | `require` | Enforces TLS for the Supabase pooler connection. |
+| `max` | `1` | Conservative per-invocation pool size for serverless. |
+| `connect_timeout` | 10 seconds | Allows normal establishment while failing far before the platform limit. |
+| `statement_timeout` | 15 seconds | Cancels an executing statement server-side. |
+| application query deadline | 20 seconds | Bounds client/network stalls not covered by the server timeout. |
+| `idle_timeout` | 20 seconds | Prevents an unexpectedly retained idle connection. |
+| `max_lifetime` | 300 seconds | Rotates retained connections. |
+| teardown timeout | 5 seconds | Destroys work that cannot close cleanly. |
+| SSL | `require` | Enforces TLS for the pooler connection. |
 
-Dashboard semantics remain four independent counts. With a one-connection pool, the existing `Promise.all` requests are queued and executed without opening four database connections. Each operation has its own bounded deadline.
+### C. Invalid database credential and PostgreSQL `28P01`
 
-## Risks and rollback
+Preview then exposed PostgreSQL `28P01`, identifying an invalid `DATABASE_URL` credential for the Transaction Pooler connection. The code hardening in `d82c8c4` made failure bounded and diagnosable; it did **not** repair the credential and must not be represented as the cause of the authentication recovery.
 
-- A 15-second statement timeout can cancel genuinely slow administrative queries; current count queries are expected to finish far below it.
-- A pool of one serializes the four counts and may add small latency, while materially reducing connection pressure.
-- An application deadline rejects before underlying I/O necessarily stops; the bounded teardown immediately follows and destroys it within five additional seconds.
-- Rollback is a revert of the isolated correction commit. No data or external configuration rollback is needed.
+### D. HUMAN operational credential correction
 
-## Preview validation checklist
+A HUMAN corrected the Preview `DATABASE_URL`/Transaction Pooler credential outside this repository. After that operational correction, `28P01` was not reproduced and the real PostgreSQL-backed Admin dashboard counts passed. No credential value is recorded here.
 
-1. Deploy the correction branch to Preview without changing its existing variables.
-2. Open `/admin-access-denied` anonymously and confirm a fast GET.
-3. Sign in with the authorized real user and record the POST duration.
-4. Confirm navigation to `/admin` and record its GET duration.
-5. Inspect `runtime_timing` events in order; do not export secrets or request headers.
-6. Confirm `supabase-sign-in-with-password` and `supabase-get-user` succeed normally.
-7. Identify whether the first dashboard query succeeds or fails, and its duration.
-8. Confirm `database-client-close` succeeds within five seconds, or reports failure before the Vercel limit.
-9. Refresh `/admin`, then validate session refresh and logout.
-10. Exercise the remaining admin pages and the public storefront.
-11. If a query fails, correlate its timestamp with Supabase Postgres/Supavisor logs.
-12. Confirm no invocation reaches 300 seconds and no runtime log includes credentials, cookies, JWTs, email, URL, query text, or parameters.
+### E. Successful `/admin` validation
 
-Local tests cannot establish Vercel-to-Supabase connectivity. Final root-cause confirmation remains dependent on the Preview timing sequence and correlated provider logs.
+After the credential correction, HUMAN Preview validation confirmed real Supabase Auth login, `ADMIN_USER_IDS` authorization, authenticated `/admin` access, and PostgreSQL-backed dashboard counts. The former 300-second Vercel timeout was not reproduced.
 
-## Analytics navigation correction
+### F. Analytics integration finding
 
-Preview validation of `d82c8c4` confirmed Auth, `/admin`, dashboard PostgreSQL queries, page-view tracking, and the removal of the 300-second timeout. It also found that client navigation to `/admin/analytics` remained visually on `/admin`.
+Validation of `d82c8c4` found that navigation from `/admin` to `/admin/analytics` remained visually on `/admin`. The destination was blocked by an Analytics snapshot of eleven queries. With the serverless pool limited to one connection, the former `Promise.all` queued eleven operations without the dashboard's complete-snapshot deadline.
 
-The navigation markup and route are valid. The destination blocks on an Analytics snapshot composed of eleven queries. With the serverless pool deliberately limited to one connection, the former `Promise.all` created eleven queued operations without the dashboard's application deadline. The correction keeps every SQL statement and metric unchanged, executes the eleven operations explicitly in sequence, and applies one 30-second deadline to the complete snapshot. This avoids starting eleven deadlines while ten operations are waiting for the pool, prevents partial snapshots, and still reaches the existing error boundary well before Vercel's runtime limit. Individual sanitized timings identify the active metric without recording SQL or data.
+### G. Analytics runtime correction — `88491f0`
 
-A segment-level `/admin/analytics/loading.tsx` now exposes `role=status`, `aria-live=polite`, and `aria-busy=true` while the destination is loading. Preview must confirm that the loading UI is displayed during a non-instant navigation.
+Commit `88491f09204ef373514fddea904c1451d16530e9` kept all SQL statements and metrics unchanged, executed the eleven operations explicitly in sequence, and applied one 30-second deadline to the complete snapshot. This avoids starting eleven deadlines while ten operations wait for the pool, prevents partial snapshots, and reaches the existing safe error boundary before the Vercel runtime limit. Individual sanitized timings identify the active metric without recording SQL or data.
 
-Additional Preview validation:
+A segment-level `/admin/analytics/loading.tsx` supplies accessible loading status during non-instant navigation.
 
-1. From `/admin`, click `Analytics` and confirm immediate accessible loading feedback followed by URL `/admin/analytics`.
-2. Confirm exactly eleven successful Analytics operation timings followed by a successful `analytics-snapshot` timing under 30 seconds.
-3. Exercise 7-, 30-, and 90-day selectors and confirm complete KPIs, rankings, and trends.
-4. Confirm no partial metrics appear on failure and the safe error boundary replaces the destination within approximately 35 seconds including teardown.
+### H. Final HUMAN Preview validation — PASS
+
+The HUMAN validated the combined state at `88491f0` in Preview:
+
+| Area | HUMAN-observed result |
+| --- | --- |
+| Home | PASS |
+| `/api/page-view` | PASS; successful HTTP 204 responses observed |
+| Corrected `DATABASE_URL` / Transaction Pooler connection | PASS |
+| Previous PostgreSQL `28P01` | NOT REPRODUCED after HUMAN credential correction |
+| Previous 300-second Vercel timeout | NOT REPRODUCED |
+| Real Supabase Auth login | PASS |
+| `ADMIN_USER_IDS` authorization | PASS |
+| Authenticated `/admin` access | PASS |
+| Logout | PASS |
+| Protected `/admin` access after logout | PASS |
+| PostgreSQL-backed dashboard counts | PASS |
+| Overview navigation | PASS |
+| `/admin` → `/admin/analytics` navigation | PASS |
+| Analytics cockpit render | PASS |
+| 7-, 30-, and 90-day periods | PASS |
+| Previous Analytics navigation/rendering hang | NOT REPRODUCED after `88491f0` |
+| Products | PASS |
+| Categories and tags | PASS |
+| Marketplaces | PASS |
+| Return to Overview | PASS |
+
+Production remained untouched and no Production promotion occurred. These fixes introduced no schema/migration change, service-role usage, Auth bypass, or observed security/privacy weakening.
+
+## `runtime_timing` disposition
+
+The instrumentation remains unchanged. The final HUMAN G4 decision requires it to remain temporarily through the separate Production-validation gate; its eventual removal or permanent retention requires a later HUMAN decision.
+
+- **Benefits:** preserves phase-level evidence for Production validation, makes future latency/failure localization practical, and confirms fail-fast behavior without exposing query or identity data.
+- **Risks:** adds operational log noise and a small maintenance surface; event names and durations can reveal coarse internal execution structure.
+- **Runtime/log-volume impact:** console logging adds minor CPU/I/O overhead per timed Auth/database operation. Analytics produces the highest volume because it records individual operations plus the complete snapshot, but no material runtime impact has been observed.
+- **Security/privacy:** current events are sanitized and intentionally omit credentials, URLs, cookies, JWTs, email, user identity, SQL, parameters, and returned data. Provider access controls, retention, and log-export policy still apply.
+- **Recommendation:** **B — retain temporarily through Production validation**, then require a HUMAN decision to remove it or accept it permanently. This preserves the evidence needed at the remaining real-environment gate without prematurely creating permanent telemetry policy.
+
+## Readiness and remaining findings
+
+- P0: 0 identified.
+- P1: 0 identified.
+- P2: 0 identified after the two runtime corrections and successful HUMAN Preview validation.
+- P3/debt: temporary `runtime_timing` disposition; the pre-existing Vite native config-loader warning and harmless color tooling notice; four accepted moderate development-only `drizzle-kit` advisories.
+
+Still unresolved or not evidenced as complete for Production: Production-specific environment validation; approved migration/clean-database application evidence; CSP validation against the final real origins; end-to-end Production HTTPS confirmation; HSTS activation only after HTTPS confirmation; PageView 90-day retention scheduler activation and observation; truthful business identity/privacy contact validation; explicit session-refresh evidence if retained as an acceptance requirement; and Production monitoring/log-policy confirmation. Preview success does not authorize or prove Production promotion.
+
+## Decision package
+
+### Positive impacts
+
+- Database failures are bounded and diagnosable well before the former platform timeout.
+- The actual `28P01` cause and its HUMAN operational correction are accurately separated from code changes.
+- Real Auth, allowlist authorization, PostgreSQL dashboard data, tracking, Admin navigation, Analytics, logout, and post-logout protection passed in Preview.
+- No schema, migration, dependency, Auth-boundary, or privacy weakening was introduced by the corrections.
+
+### Negative impacts / risks
+
+- Conservative single-connection execution can add latency.
+- Runtime deadlines may reject unusually slow but otherwise valid administrative queries.
+- Temporary timing events add log volume and require an explicit post-Production disposition.
+- Production prerequisites remain and cannot be inferred from Preview validation.
+
+### Practical consequences
+
+The corrected Preview baseline was accepted by the HUMAN for SPEC-012's correction and Preview-validation scope. Acceptance does not authorize deployment, merge, Production promotion, remote migration, secret change, HSTS activation, or scheduler activation. Each remaining Production operation stays behind its applicable HUMAN gate.
+
+**Final state:** `SPEC-012 ACCEPTED · G4 HUMAN APPROVED · PREVIEW FUNCTIONAL VALIDATION ACCEPTED`
