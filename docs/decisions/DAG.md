@@ -4,8 +4,8 @@
 
 `SPEC-012 → SPEC-015 Admin Cockpit UX/UI Redesign`
 
-`SPEC-015 → Production Readiness & Release (next unreserved SPEC) → Primary Affiliate Operation Live → stabilization → SPEC-016 Google AdSense Monetization Integration (deferred)`
+`SPEC-015 → SPEC-017 Production Readiness & Release (G1 approved; G2A next) → Primary Affiliate Operation Live → stabilization → SPEC-016 Google AdSense Monetization Integration (deferred)`
 
-SPEC-013 Growth and SPEC-014 Automation remain reserved. SPEC-016 is G1-approved but PLANNED / DEFERRED until the primary affiliate operation is live and stable. Its specification, plan, G1 decision, discovery, and history remain preserved. No Stage 0 work, advertising implementation, AdSense script, `ads.txt`, Publisher ID, advertising environment variable, AdSense-only CMP, advertising CSP change, ad slot, monetization reporting, or Production activation is authorized. Resumption requires a new explicit HUMAN decision.
+SPEC-013 Growth and SPEC-014 Automation remain reserved. SPEC-017 is G1 HUMAN APPROVED for documentation and evidence preparation only; G2A readiness/input review is next. No provider action or Production mutation is authorized. SPEC-016 is G1-approved but PLANNED / DEFERRED until the primary affiliate operation is live and stable. Its specification, plan, G1 decision, discovery, and history remain preserved. No Stage 0 work, advertising implementation, AdSense script, `ads.txt`, Publisher ID, advertising environment variable, AdSense-only CMP, advertising CSP change, ad slot, monetization reporting, or Production activation is authorized. Resumption requires a new explicit HUMAN decision.
 
 SPEC-002 branding may proceed in parallel, but NAME FREEZE is mandatory before a domain, final identity, production, or public campaigns.
