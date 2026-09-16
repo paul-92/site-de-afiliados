@@ -22,6 +22,13 @@
       "when": 1789392825003,
       "tag": "0002_third_sebastian_shaw",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1789559749181,
+      "tag": "0003_secure_server_only_data_boundary",
+      "breakpoints": true
     }
   ]
 }
