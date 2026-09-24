@@ -74,12 +74,25 @@ export class DrizzleCatalogRepository implements CatalogRepository {
       shortDescription: products.shortDescription, imageUrl: products.imageUrl, imageAlt: products.imageAlt,
       lastVerifiedAt: products.lastVerifiedAt, marketplaceId: products.marketplaceId,
       categoryActive: categories.active, marketplaceActive: marketplaces.active,
+      discoveryMarketplaceId: products.discoveryMarketplaceId,
+      discoveryShopId: products.discoveryShopId,
+      discoveryItemId: products.discoveryItemId,
+      discoveryCanonicalUrl: products.discoveryCanonicalUrl,
     }).from(products)
       .innerJoin(categories, eq(products.categoryId, categories.id))
       .innerJoin(marketplaces, eq(products.marketplaceId, marketplaces.id))
       .where(eq(products.id, productId)).limit(1);
     if (!row) return null;
-    const links = await this.db.select({ active: affiliateLinks.active, url: affiliateLinks.url, marketplaceId: affiliateLinks.marketplaceId })
+    const links = await this.db.select({
+      active: affiliateLinks.active,
+      url: affiliateLinks.url,
+      marketplaceId: affiliateLinks.marketplaceId,
+      reconciliationStatus: affiliateLinks.reconciliationStatus,
+      linkOrigin: affiliateLinks.linkOrigin,
+      destinationShopId: affiliateLinks.destinationShopId,
+      destinationItemId: affiliateLinks.destinationItemId,
+      destinationCanonicalUrl: affiliateLinks.destinationCanonicalUrl,
+    })
       .from(affiliateLinks).where(eq(affiliateLinks.productId, productId));
     return { ...row, status: row.status as ProductStatus, affiliateLinks: links };
   }

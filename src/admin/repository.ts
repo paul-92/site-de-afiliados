@@ -46,7 +46,13 @@ export class AdminRepository {
     const [product] = await this.db.select().from(products).where(eq(products.id, id)).limit(1);
     if (!product) return null;
     const [links, prices, assignedTags] = await Promise.all([
-      this.db.select({ id: affiliateLinks.id, url: affiliateLinks.url, active: affiliateLinks.active, marketplaceId: affiliateLinks.marketplaceId, marketplaceName: marketplaces.name })
+      this.db.select({
+        id: affiliateLinks.id, url: affiliateLinks.url, active: affiliateLinks.active,
+        marketplaceId: affiliateLinks.marketplaceId, marketplaceName: marketplaces.name,
+        reconciliationStatus: affiliateLinks.reconciliationStatus, linkOrigin: affiliateLinks.linkOrigin,
+        destinationShopId: affiliateLinks.destinationShopId, destinationItemId: affiliateLinks.destinationItemId,
+        destinationCanonicalUrl: affiliateLinks.destinationCanonicalUrl,
+      })
         .from(affiliateLinks).innerJoin(marketplaces, eq(affiliateLinks.marketplaceId, marketplaces.id)).where(eq(affiliateLinks.productId, id)).orderBy(desc(affiliateLinks.createdAt)),
       this.db.select().from(priceObservations).where(eq(priceObservations.productId, id)).orderBy(desc(priceObservations.observedAt)),
       this.db.select({ id: tags.id, name: tags.name }).from(productTags).innerJoin(tags, eq(productTags.tagId, tags.id)).where(eq(productTags.productId, id)),

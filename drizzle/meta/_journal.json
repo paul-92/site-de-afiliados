@@ -29,6 +29,13 @@
       "when": 1789559749181,
       "tag": "0003_secure_server_only_data_boundary",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1790209366502,
+      "tag": "0004_tough_lord_hawal",
+      "breakpoints": true
     }
   ]
 }

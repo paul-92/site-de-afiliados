@@ -16,21 +16,88 @@ export class PublicationGateError extends Error {
   }
 }
 
+import type { ReconciliationStatus, LinkOrigin } from "@/lib/identity/reconciliation";
+
+export interface CandidateAffiliateLink {
+  readonly active: boolean;
+  readonly url: string;
+  readonly marketplaceId: string;
+  readonly reconciliationStatus?: ReconciliationStatus | null;
+  readonly linkOrigin?: LinkOrigin | null;
+  readonly destinationShopId?: string | null;
+  readonly destinationItemId?: string | null;
+  readonly destinationCanonicalUrl?: string | null;
+}
+
 export interface PublicationCandidate {
-  slug: string;
-  title: string;
-  shortDescription: string | null;
-  imageUrl: string | null;
-  imageAlt: string | null;
-  lastVerifiedAt: Date | null;
-  categoryActive: boolean;
-  marketplaceActive: boolean;
-  affiliateLinks: readonly { active: boolean; url: string; marketplaceId: string }[];
-  marketplaceId: string;
+  readonly slug: string;
+  readonly title: string;
+  readonly shortDescription: string | null;
+  readonly imageUrl: string | null;
+  readonly imageAlt: string | null;
+  readonly lastVerifiedAt: Date | null;
+  readonly categoryActive: boolean;
+  readonly marketplaceActive: boolean;
+  readonly affiliateLinks: readonly CandidateAffiliateLink[];
+  readonly marketplaceId: string;
+  readonly discoveryMarketplaceId?: string | null;
+  readonly discoveryShopId?: string | null;
+  readonly discoveryItemId?: string | null;
+  readonly discoveryCanonicalUrl?: string | null;
 }
 
 export function evaluatePublicationGate(product: PublicationCandidate) {
   const reasons: string[] = [];
+
+  // Step 0: Two-Stage Identity Reconciliation Gate
+  const activeLinks = product.affiliateLinks.filter(
+    (link) => link.active && link.marketplaceId === product.marketplaceId && isHttpsUrl(link.url)
+  );
+
+  if (activeLinks.length === 0) {
+    reasons.push("missing_active_affiliate_link");
+  } else {
+    // Evaluate reconciliation on active affiliate links
+    let hasApprovedReconciliation = false;
+    for (const link of activeLinks) {
+      const status = link.reconciliationStatus;
+      if (status === "EXACT_MATCH" || status === "EQUIVALENT") {
+        hasApprovedReconciliation = true;
+      } else if (status === "MATERIAL_MISMATCH") {
+        if (!reasons.includes("reconciliation_material_mismatch")) {
+          reasons.push("reconciliation_material_mismatch");
+        }
+      } else if (status === "INCONCLUSIVE") {
+        if (!reasons.includes("reconciliation_inconclusive")) {
+          reasons.push("reconciliation_inconclusive");
+        }
+      } else if (status === "DESTINATION_UNAVAILABLE") {
+        if (!reasons.includes("destination_unavailable")) {
+          reasons.push("destination_unavailable");
+        }
+      } else if (!status) {
+        // Legacy / implicit reconciliation: check discovery vs destination if both present
+        if (product.discoveryShopId && link.destinationShopId && product.discoveryItemId && link.destinationItemId) {
+          if (product.discoveryShopId === link.destinationShopId && product.discoveryItemId === link.destinationItemId) {
+            hasApprovedReconciliation = true;
+          } else {
+            if (!reasons.includes("reconciliation_inconclusive")) {
+              reasons.push("reconciliation_inconclusive");
+            }
+          }
+        } else {
+          // Backward compatibility for legacy active products / fixture mocks without two-stage telemetry
+          hasApprovedReconciliation = true;
+        }
+      }
+    }
+
+    if (!hasApprovedReconciliation && reasons.length === 0) {
+      reasons.push("reconciliation_inconclusive");
+    }
+  }
+
+  // Steps 1-9: Standard Publication Gate Checks
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(product.slug)) reasons.push("invalid_slug");
   if (!product.title.trim()) reasons.push("missing_title");
   if (!product.shortDescription?.trim()) reasons.push("missing_short_description");
@@ -39,7 +106,7 @@ export function evaluatePublicationGate(product: PublicationCandidate) {
   if (!product.categoryActive) reasons.push("inactive_category");
   if (!product.marketplaceActive) reasons.push("inactive_marketplace");
   if (!product.lastVerifiedAt) reasons.push("never_verified");
-  if (!product.affiliateLinks.some((link) => link.active && link.marketplaceId === product.marketplaceId && isHttpsUrl(link.url))) reasons.push("missing_active_affiliate_link");
+
   return { passed: reasons.length === 0, reasons } as const;
 }
 

@@ -1,14 +1,56 @@
 import { boolean, index, integer, numeric, pgEnum, pgTable, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 
 export const productStatus = pgEnum("product_status", ["DRAFT", "READY", "ACTIVE", "PAUSED", "ARCHIVED"]);
+export const reconciliationStatus = pgEnum("reconciliation_status", [
+  "EXACT_MATCH",
+  "EQUIVALENT",
+  "MATERIAL_MISMATCH",
+  "INCONCLUSIVE",
+  "DESTINATION_UNAVAILABLE",
+]);
+export const linkOrigin = pgEnum("link_origin", [
+  "HUMAN_PROVIDED",
+  "AFFILIATE_PANEL_ASSISTED",
+]);
 const timestamps = { createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(), updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull() };
 
 export const marketplaces = pgTable("marketplaces", { id: uuid("id").defaultRandom().primaryKey(), slug: text("slug").notNull(), name: text("name").notNull(), active: boolean("active").default(true).notNull(), ...timestamps }, (t) => [uniqueIndex("marketplaces_slug_uidx").on(t.slug)]);
 export const categories = pgTable("categories", { id: uuid("id").defaultRandom().primaryKey(), slug: text("slug").notNull(), name: text("name").notNull(), description: text("description"), active: boolean("active").default(true).notNull(), sortOrder: integer("sort_order").default(0).notNull(), ...timestamps }, (t) => [uniqueIndex("categories_slug_uidx").on(t.slug)]);
 export const tags = pgTable("tags", { id: uuid("id").defaultRandom().primaryKey(), slug: text("slug").notNull(), name: text("name").notNull(), ...timestamps }, (t) => [uniqueIndex("tags_slug_uidx").on(t.slug)]);
-export const products = pgTable("products", { id: uuid("id").defaultRandom().primaryKey(), slug: text("slug").notNull(), title: text("title").notNull(), shortDescription: text("short_description"), editorialNote: text("editorial_note"), imageUrl: text("image_url"), imageAlt: text("image_alt"), status: productStatus("status").default("DRAFT").notNull(), featured: boolean("featured").default(false).notNull(), marketplaceId: uuid("marketplace_id").notNull().references(() => marketplaces.id, { onDelete: "restrict" }), categoryId: uuid("category_id").notNull().references(() => categories.id, { onDelete: "restrict" }), lastVerifiedAt: timestamp("last_verified_at", { withTimezone: true }), ...timestamps }, (t) => [uniqueIndex("products_slug_uidx").on(t.slug), index("products_public_idx").on(t.status, t.categoryId)]);
+export const products = pgTable("products", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  slug: text("slug").notNull(),
+  title: text("title").notNull(),
+  shortDescription: text("short_description"),
+  editorialNote: text("editorial_note"),
+  imageUrl: text("image_url"),
+  imageAlt: text("image_alt"),
+  status: productStatus("status").default("DRAFT").notNull(),
+  featured: boolean("featured").default(false).notNull(),
+  marketplaceId: uuid("marketplace_id").notNull().references(() => marketplaces.id, { onDelete: "restrict" }),
+  categoryId: uuid("category_id").notNull().references(() => categories.id, { onDelete: "restrict" }),
+  discoveryMarketplaceId: uuid("discovery_marketplace_id").references(() => marketplaces.id, { onDelete: "restrict" }),
+  discoveryShopId: text("discovery_shop_id"),
+  discoveryItemId: text("discovery_item_id"),
+  discoveryCanonicalUrl: text("discovery_canonical_url"),
+  lastVerifiedAt: timestamp("last_verified_at", { withTimezone: true }),
+  ...timestamps,
+}, (t) => [uniqueIndex("products_slug_uidx").on(t.slug), index("products_public_idx").on(t.status, t.categoryId)]);
 export const productTags = pgTable("product_tags", { productId: uuid("product_id").notNull().references(() => products.id, { onDelete: "cascade" }), tagId: uuid("tag_id").notNull().references(() => tags.id, { onDelete: "cascade" }) }, (t) => [uniqueIndex("product_tags_pair_uidx").on(t.productId, t.tagId)]);
-export const affiliateLinks = pgTable("affiliate_links", { id: uuid("id").defaultRandom().primaryKey(), productId: uuid("product_id").notNull().references(() => products.id, { onDelete: "restrict" }), marketplaceId: uuid("marketplace_id").notNull().references(() => marketplaces.id, { onDelete: "restrict" }), url: text("url").notNull(), active: boolean("active").default(true).notNull(), ...timestamps }, (t) => [index("affiliate_links_product_active_idx").on(t.productId, t.active)]);
+export const affiliateLinks = pgTable("affiliate_links", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  productId: uuid("product_id").notNull().references(() => products.id, { onDelete: "restrict" }),
+  marketplaceId: uuid("marketplace_id").notNull().references(() => marketplaces.id, { onDelete: "restrict" }),
+  url: text("url").notNull(),
+  active: boolean("active").default(true).notNull(),
+  destinationShopId: text("destination_shop_id"),
+  destinationItemId: text("destination_item_id"),
+  destinationCanonicalUrl: text("destination_canonical_url"),
+  reconciliationStatus: reconciliationStatus("reconciliation_status").default("INCONCLUSIVE").notNull(),
+  linkOrigin: linkOrigin("link_origin").default("HUMAN_PROVIDED").notNull(),
+  reconciledAt: timestamp("reconciled_at", { withTimezone: true }),
+  ...timestamps,
+}, (t) => [index("affiliate_links_product_active_idx").on(t.productId, t.active), index("affiliate_links_reconciliation_idx").on(t.reconciliationStatus)]);
 export const priceObservations = pgTable("price_observations", {
   id: uuid("id").defaultRandom().primaryKey(),
   productId: uuid("product_id").notNull().references(() => products.id, { onDelete: "restrict" }),
